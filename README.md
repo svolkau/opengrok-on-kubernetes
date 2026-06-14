@@ -34,7 +34,7 @@ This deployment includes:
 ## How it works
 
 The Pod contains the OpenGrok container and an Ubuntu sidecar container that share the same source-code volume.
-
+```
 StatefulSet: opengrok
         |
         |-- container: opengrok
@@ -53,7 +53,7 @@ StatefulSet: opengrok
               |-- runs /opengrok_scripts/repoToSync.sh every 3 minutes
               |-- clones or updates repositories under /opengrok/src
               |-- can use /root/.netrc from netrcsecret for private Git authentication
-
+```
 The current repository sync script clones these public sample repositories:
 
 * https://github.com/dockersamples/example-voting-app.git
