@@ -91,9 +91,9 @@ This works for GKE. For another Kubernetes environment, update the storageClassN
 
 The included secrets contain dummy values so the manifests can be applied as-is for demo/testing with public repositories.
 
-For private Git repositories, replace the `.netrc` content in `secret-netrc.yaml` with real Git credentials.
+For private Git repositories, replace the `.netrc` content in `secret-netrc.example.yaml` with real Git credentials.
 
-For private container images, replace the Docker registry credentials in `secret-image-repo-credentials.yaml`. If all images are public and your cluster does not require an image pull secret, the imagePullSecrets reference can also be removed from the StatefulSet.
+For private container images, replace the Docker registry credentials in `secret-image-repo-credentials.example.yaml`. If all images are public and your cluster does not require an image pull secret, the imagePullSecrets reference can also be removed from the StatefulSet.
 
 ### Service exposure
 
@@ -123,8 +123,10 @@ Get the external IP if using the current LoadBalancer service:
 ```
 kubectl get svc opengrok-clusterip
 ```
-Open the UI in a browser: http://<EXTERNAL-IP>:8080
-
+Open the UI in a browser: 
+```
+http://<EXTERNAL-IP>:8080
+```
 If the service is changed to ClusterIP, use port-forwarding instead:
 ```
 kubectl port-forward svc/opengrok-clusterip 8080:8080
