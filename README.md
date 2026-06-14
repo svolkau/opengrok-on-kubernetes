@@ -131,7 +131,6 @@ If the service is changed to ClusterIP, use port-forwarding instead:
 ```
 kubectl port-forward svc/opengrok-clusterip 8080:8080
 ```
-Then open: http://localhost:8080
 
 ## Useful commands
 
