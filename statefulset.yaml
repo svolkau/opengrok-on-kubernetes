@@ -1,0 +1,161 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opengrok
+spec:
+  selector:
+    matchLabels:
+      app: opengrok
+  serviceName: opengrok
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: opengrok
+    spec:
+      terminationGracePeriodSeconds: 10
+
+      containers:
+      ########### OPENGROK ############
+      - name: opengrok
+        image: "opengrok/docker:1.3.5"
+        ports:
+        - containerPort: 8080
+          name: opengrok
+
+        envFrom:
+        - configMapRef:
+            name: env-variables
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          failureThreshold: 3
+          periodSeconds: 360
+          timeoutSeconds: 10
+
+        volumeMounts:
+        - name: opengrok-src
+          mountPath: "/opengrok/src"
+        - name: opengrok-data
+          mountPath: "/opengrok/data"
+        - name: opengrok-conf
+          mountPath: "/opengrok/etc"
+        - name: opengrok-log-config
+          mountPath: "/opengrok-log-config"
+        - name: opengrok-logs
+          mountPath: "/opengrok-logs"
+
+      ########### UBUNTU ############
+      - name: ubuntu
+        image: ubuntu:20.04
+        command: ["/initscript/init-script.sh"]
+
+        volumeMounts:
+        - name: opengrok-src
+          mountPath: "/opengrok/src/"
+        - name: init-script
+          mountPath: "/initscript"
+        - name: netrcsecret
+          mountPath: "/root"
+          readOnly: true
+        - name: opengrok-scripts
+          mountPath: "/opengrok_scripts"
+
+      volumes:
+      - name: opengrok-scripts
+        configMap:
+          name: repo-to-sync
+          defaultMode: 0744
+          items:
+          - key: "repoToSync.sh"
+            path: "repoToSync.sh"
+
+      - name: netrcsecret
+        secret:
+          secretName: netrcsecret
+
+      - name: init-script
+        configMap:
+          name: init-script
+          defaultMode: 0744
+          items:
+          - key: "init-script.sh"
+            path: "init-script.sh"
+
+      - name: opengrok-log-config
+        configMap:
+          name: configmap-logs
+          items:
+          - key: "logging.properties"
+            path: "logging.properties"
+
+      imagePullSecrets:
+      - name: regcred
+
+  volumeClaimTemplates:
+  - metadata:
+      name: opengrok-src
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+
+      # Select the StorageClass for your Kubernetes environment:
+      storageClassName: standard-rwo # GCP GKE
+      # storageClassName: hostpath # Docker Desktop
+      # storageClassName: gp2 # AWS EKS default/older clusters
+      # storageClassName: gp3 # AWS EKS with EBS CSI gp3 StorageClass
+
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 15Gi
+
+  - metadata:
+      name: opengrok-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+
+      # Select the StorageClass for your Kubernetes environment:
+      storageClassName: standard-rwo # GCP GKE
+      # storageClassName: hostpath # Docker Desktop
+      # storageClassName: gp2 # AWS EKS default/older clusters
+      # storageClassName: gp3 # AWS EKS with EBS CSI gp3 StorageClass
+
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 12Gi
+
+  - metadata:
+      name: opengrok-conf
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+
+      # Select the StorageClass for your Kubernetes environment:
+      storageClassName: standard-rwo # GCP GKE
+      # storageClassName: hostpath # Docker Desktop
+      # storageClassName: gp2 # AWS EKS default/older clusters
+      # storageClassName: gp3 # AWS EKS with EBS CSI gp3 StorageClass
+
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 1Gi
+
+  - metadata:
+      name: opengrok-logs
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+
+      # Select the StorageClass for your Kubernetes environment:
+      storageClassName: standard-rwo # GCP GKE
+      # storageClassName: hostpath # Docker Desktop
+      # storageClassName: gp2 # AWS EKS default/older clusters
+      # storageClassName: gp3 # AWS EKS with EBS CSI gp3 StorageClass
+
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 1Gi

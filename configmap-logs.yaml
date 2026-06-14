@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-logs
+data:
+  logging.properties: |
+    ############################################################
+    #                 Logging Configuration File
+    # You can use a different file by specifying a filename
+    # with the java.util.logging.config.file system property.  
+    # For example java -Djava.util.logging.config.file=myfile
+    # comments and explanations: 
+    # https://github.com/oracle/opengrok/blob/master/logging.properties
+    ############################################################
+
+    handlers = java.util.logging.FileHandler, java.util.logging.ConsoleHandler
+
+    # accetbale levels: OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL
+    # log everything below this level
+    .level = CONFIG
+
+    ############################################################
+    # Handler specific properties.
+    ############################################################
+
+    java.util.logging.FileHandler.pattern = /opengrok-logs/opengrok%g.%u.log
+
+    #  when logging starts, the FileHandler will create a new log file (not appending new log messages to an existing file)
+    java.util.logging.FileHandler.append = false
+
+    # max. filesize = 10MB
+    java.util.logging.FileHandler.limit = 10485760
+
+    # if more than 5 files, delete the oldest one
+    java.util.logging.FileHandler.count = 5
+
+    # log everything below this level
+    java.util.logging.FileHandler.level = CONFIG
+
+    # formatter to use to format LogRecords
+    java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter
+
+    # encoding to use, when writing out the formatted String
+    java.util.logging.ConsoleHandler.encoding = UTF-8
+
+    ############################################################
+    # console handler default properties:
+    ############################################################
+
+    # log everything below this level
+    java.util.logging.ConsoleHandler.level = CONFIG
+
+    # formatter to use to format LogRecords
+    java.util.logging.ConsoleHandler.formatter = org.opengrok.indexer.logger.formatter.SimpleFileLogFormatter
+
+    # encoding to use, when writing out the formatted String
+    java.util.logging.ConsoleHandler.encoding = UTF-8
+
+    # ############################################################
+    # # fine-grained logging
+    # ############################################################
+
+    # # pass Indexer's log messages with level FINE to the configured handlers, too
+    # # NOTE: depending on their configuration, they can still drop the log message!
+    # org.opensolaris.opengrok.index.Indexer.level = FINE

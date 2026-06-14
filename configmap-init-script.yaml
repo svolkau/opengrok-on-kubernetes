@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-script
+data:
+  init-script.sh: |
+    #!/bin/bash
+    ######## INSTALL CRON SERVICE #######
+    apt update
+    apt-get install -y cron
+
+    ######## CRON SERVICE STATUS ########
+    # Check the status of the cron service
+    cron_status=$(service cron status)
+
+    # Check if the cron service is not running
+    if echo "$cron_status" | grep -q "is not running"; then
+      echo "Cron service is not running. Starting the cron service..."
+      service cron start
+  
+      # Check if the cron service started successfully
+      if service cron status | grep -q "is running"; then
+        echo "Cron service started successfully."
+      else
+        echo "Failed to start the cron service."
+        exit 1;
+      fi
+    else
+      echo "Cron service is already running."
+    fi
+
+    ######## CRON JOB ########
+    # Define the cron job
+    CRON_JOB="*/3 * * * * /opengrok_scripts/repoToSync.sh"
+    
+    # Get the current cron jobs
+    current_cron=$(crontab -l 2>/dev/null)
+
+    # Check if the cron job already exists
+    if echo "$current_cron" | grep -Fxq "$CRON_JOB"; then
+      echo "Cron job already exists."
+    else
+      # Add the cron job while preserving existing ones
+      (echo "$current_cron"; echo "$CRON_JOB") | crontab -
+      echo "Cron job added."
+    fi
+
+    ######## KEEP CONATAINER RUNNING ########
+    while true
+    do
+      sleep 1000
+    done
