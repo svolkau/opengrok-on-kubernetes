@@ -1,6 +1,6 @@
 # OpenGrok on Kubernetes
 
-## Intro
+## Introduction
 
 OpenGrok is a fast source-code search and cross-reference tool that helps engineers navigate large codebases directly from a web interface. It indexes repositories and provides full-text search, symbol lookup, history, and code navigation, making it easier to investigate changes, understand dependencies, and find relevant implementation details across projects.
 
